@@ -6,6 +6,14 @@ from subprocess import PIPE
 
 
 class Process:
+    """
+    the class provides a mechanism for interacting
+    with a process obtained using its PID
+    """
+    pid: int
+    process: psutil.Process
+    killed: bool
+
     def __init__(self, pid: int):
         self.pid = pid
         self.process = psutil.Process(pid)
@@ -67,6 +75,21 @@ class Process:
             ans.update({"current status": self.process.status()})
         return ans
 
+
+class NewProcess(Process):
+    """
+    the class provides a mechanism for interacting
+    with a process created by user's command
+    """
+    pid: int
+    process: psutil.Popen
+    killed: bool
+
+    def __init__(self, command: list):
+        self.killed = False
+        self.process = psutil.Popen(command, stdout=PIPE)
+        self.pid = self.process.pid
+
     def get_result(self) -> str:
         """
         works only for processes that were created by crete_py_process method
@@ -76,11 +99,5 @@ class Process:
         return output.decode()
 
     @staticmethod
-    def create_py_process(py_path: str) -> int:
-        """
-        py_path is a path to a python file that should be executed
-        """
-        popen = psutil.Popen(["/usr/bin/python3", py_path], stdout=PIPE)
-        ret = Process(popen.pid)
-        ret.process = popen
-        return ret
+    def py_process(py_path: str):
+        return NewProcess(["/usr/bin/python3", py_path])

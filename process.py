@@ -4,8 +4,8 @@ import psutil
 import time
 from subprocess import PIPE
 
-
-class Process:
+# TODO make an interface later
+class PIDProcess:
     """
     the class provides a mechanism for interacting
     with a process obtained using its PID
@@ -14,7 +14,15 @@ class Process:
     process: psutil.Process
     killed: bool
 
+    dead_statuses = (
+        psutil.STATUS_DEAD,
+        psutil.STATUS_ZOMBIE
+    )
+
     def __init__(self, pid: int):
+        self.killed = True
+
+    def run(self, pid: int):
         self.pid = pid
         self.process = psutil.Process(pid)
         self.killed = False
@@ -36,7 +44,8 @@ class Process:
         if someone else kills the process it will cause problems
         TODO may be caught by exceptions
         """
-        return self.is_running() or self.is_stopped() or self.is_sleeping()
+        return not self.killed and\
+            self.process.status() not in self.dead_statuses
 
     def stop(self):
         if self.is_running():
@@ -65,18 +74,20 @@ class Process:
         return self.process.cpu_times()
 
     def status(self) -> dict:
-        if self.pid is None:
+        if not self.is_alive():
             return "process was killed"
         ans = {"current status": self.process.status()}
         if self.is_alive():
             ans.update(self.get_mem_info())
-            ans.update({"work time": self.get_work_time()})
-            ans.update({"CPU used": self.get_cpu_percent()})
-            ans.update({"current status": self.process.status()})
+            ans.update({
+                "work time": self.get_work_time(),
+                "CPU used": self.get_cpu_percent(),
+                "current status": self.process.status()
+            })
         return ans
 
 
-class NewProcess(Process):
+class NewProcess(PIDProcess):
     """
     the class provides a mechanism for interacting
     with a process created by user's command
@@ -85,19 +96,18 @@ class NewProcess(Process):
     process: psutil.Popen
     killed: bool
 
-    def __init__(self, command: list):
-        self.killed = False
+    def __init__(self):
+        self.killed = True
+
+    def run(self, command: list):
         self.process = psutil.Popen(command, stdout=PIPE)
         self.pid = self.process.pid
+        self.killed = False
+
+    def run_py(self, py_path: str):
+        self.run(["/usr/bin/python3", py_path])
 
     def get_result(self) -> str:
-        """
-        works only for processes that were created by crete_py_process method
-        """
         self.process.wait()
         output = self.process.stdout.read()
         return output.decode()
-
-    @staticmethod
-    def py_process(py_path: str):
-        return NewProcess(["/usr/bin/python3", py_path])

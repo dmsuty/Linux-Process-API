@@ -4,28 +4,12 @@ import psutil
 import time
 from subprocess import PIPE
 
-# TODO make an interface later
-class PIDProcess:
-    """
-    the class provides a mechanism for interacting
-    with a process obtained using its PID
-    """
-    pid: int
-    process: psutil.Process
-    killed: bool
+class AnyProcess:
 
     dead_statuses = (
         psutil.STATUS_DEAD,
         psutil.STATUS_ZOMBIE
     )
-
-    def __init__(self, pid: int):
-        self.killed = True
-
-    def run(self, pid: int):
-        self.pid = pid
-        self.process = psutil.Process(pid)
-        self.killed = False
 
     def is_running(self) -> bool:
         return not self.killed and\
@@ -73,7 +57,7 @@ class PIDProcess:
     def get_cpu_time(self):
         return self.process.cpu_times()
 
-    def status(self) -> dict:
+    def get_status(self) -> dict:
         if not self.is_alive():
             return "process was killed"
         ans = {"current status": self.process.status()}
@@ -87,7 +71,25 @@ class PIDProcess:
         return ans
 
 
-class NewProcess(PIDProcess):
+class PIDProcess(AnyProcess):
+    """
+    the class provides a mechanism for interacting
+    with a process obtained using its PID
+    """
+    pid: int
+    process: psutil.Process
+    killed: bool
+
+    def __init__(self, pid: int):
+        self.killed = True
+
+    def run(self, pid: int):
+        self.pid = pid
+        self.process = psutil.Process(pid)
+        self.killed = False
+
+
+class NewProcess(AnyProcess):
     """
     the class provides a mechanism for interacting
     with a process created by user's command

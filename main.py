@@ -7,6 +7,7 @@ app = FastAPI()
 
 processes_names = (
     "simple_long_process",
+    "CYK_process",
 )
 processes = dict()
 for name in processes_names:

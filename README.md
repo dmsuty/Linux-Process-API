@@ -7,7 +7,7 @@
     + сборка docker-image: <code>docker build -t image_name .</code>
     + сборка контейнера: <code>docker run -d --name container_name -p 80:80 image_name</code>
 * Работа с API:
-    + Перейти по [localhost/docs](127.0.0.1/docs) с документацией API
+    + Перейти по [localhost/docs](https://127.0.0.1/api/docs "127.0.0.1/api/docs") с документацией API
     + API предоставляет возможность работы с несколькими процессами. Процессы - Python-скрипты, лежащие в папке processes
     + Метод взаимодействия - отправка html запросов:
         - GET /api/docs - страница с документацией (перекидывает на /docs)

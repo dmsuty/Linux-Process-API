@@ -6,7 +6,7 @@ from process import PIDProcess, NewProcess
 app = FastAPI()
 
 processes_names = (
-    "simple_long_process.py",
+    "simple_long_process",
 )
 processes = dict()
 for name in processes_names:

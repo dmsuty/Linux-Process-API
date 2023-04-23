@@ -14,7 +14,7 @@ for name in processes_names:
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return {"Hello, Kaspersky!"}
 
 @app.get("/api/docs")
 def docs():
@@ -33,6 +33,6 @@ def change_status(process_name: str, item: str = Body(...)):
 def get_status(process_name: str):
     return processes[process_name].get_status()
 
-@app.get("/api/result{process_name}")
+@app.get("/api/result/{process_name}")
 def get_result(process_name: str):
     return processes[process_name].get_result()

@@ -26,6 +26,8 @@ def change_status(process_name: str, item: str = Body(...)):
         processes[process_name].kill()
         return "process was killed"
     elif item == "START":
+        if processes[process_name].is_alive():
+            return "process is running right now!"
         processes[process_name].run_py(f"processes/{process_name}.py")
         return "process has been started"
 
